@@ -22,6 +22,10 @@
   import { loading } from "$lib/shared/loading.svelte";
   import { assetIcons } from "$lib/shared/icons.svelte";
   import { handleSampleDrag, prepareSample } from "$lib/shared/drag.svelte";
+  import { Plus, CircleCheck } from "lucide-svelte";
+  import { saveSample } from "$lib/shared/files.svelte";
+  import { exists, create, mkdir } from "@tauri-apps/plugin-fs";
+  import { absoluteSamplePath } from "$lib/shared/files.svelte";
 
   let {
     class: className,
@@ -74,6 +78,49 @@
     var seconds = Math.floor((millis % 60000) / 1000);
     return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   };
+
+  let isSaved = $state<boolean | null>(null); // null = loading
+  let saving = $state(false);
+
+  $effect(() => {
+    let cancelled = false;
+
+    async function checkIfSaved() {
+      isSaved = null;
+
+      try {
+        const path = await absoluteSamplePath(sampleAsset);
+        const result = await exists(path);
+
+        if (!cancelled) {
+          isSaved = result;
+        }
+      } catch (e) {
+        if (!cancelled) {
+          isSaved = false;
+        }
+      }
+    }
+  
+    checkIfSaved();
+
+    return () => {
+      cancelled = true;
+    };
+  });
+
+  async function handleSaveClick() {
+    if (isSaved || saving) return;
+    saving = true;
+    try {
+      await saveSample(sampleAsset);
+      isSaved = true;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      saving = false;
+    }
+  }
 </script>
 
 <button
@@ -184,5 +231,22 @@
   </div>
   <div class="text-muted-foreground flex-shrink-0 w-14 flex-grow">
     {sampleAsset.bpm ?? "--"}
+  </div>
+  <div class="w-12 flex-shrink-0 text-xs text-muted-foreground"></div>
+  <div class="w-12 flex-shrink-0 text-xs text-muted-foreground">
+    <Button
+      variant="ghost"
+      class="group flex-shrink-0 focus:outline-none"
+      size="icon-lg"
+      onclick={handleSaveClick}
+    >   
+      {#if isSaved === null || saving}
+        <LoaderCircle class="animate-spin" />
+      {:else if isSaved}
+        <CircleCheck />
+      {:else}
+        <Plus />
+      {/if}
+</Button>
   </div>
 </button>

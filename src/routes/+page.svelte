@@ -526,6 +526,8 @@
           onsort={updateSort}
           class="flex-shrink-0 w-14 flex-grow"
         />
+        <div class="w-12 flex-shrink-0 text-xs text-muted-foreground"></div>
+        <div class="w-12 flex-shrink-0 text-xs text-muted-foreground"></div>
       </div>
       <ProgressLoading loading={loading.assets || loading.waveformsCount > 0} />
     </div>
