@@ -1,4 +1,4 @@
-<h1 style="display: flex; align-items: center;"><img src="./src-tauri/icons/128x128.png" width="64"/> spliceqq</h1>
+# <img src="./src-tauri/icons/128x128.png" width="64"/> spliceqq
 
 **spliceqq** is an alternative frontend for the popular [Splice](https://splice.com/features/sounds) sample library. It does not require any authentication and contains all of the most important features of the regular desktop app (including drag-and-drop).
 
